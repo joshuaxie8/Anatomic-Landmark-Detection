@@ -9,9 +9,9 @@ python main.py
 --testSetCsv=cepha_val.csv
 --numWorkers=12
 --epochs=3
---saveName=model.pth
+--modelPath=model/model.pth
 
-python main.py --use_gpu=0 --dataRoot=process_data/ --supervised_dataset_train=TrainingData/ --supervised_dataset_test=Test1Data/ --batchSize=1 --landmarkNum=19 --trainingSetCsv=cepha_train.csv --testSetCsv=cepha_val.csv --numWorkers=12 --epochs=3 --saveName=model.pth
+python main.py --use_gpu=0 --dataRoot=process_data/ --supervised_dataset_train=TrainingData/ --supervised_dataset_test=Test1Data/ --batchSize=1 --landmarkNum=19 --trainingSetCsv=cepha_train.csv --testSetCsv=cepha_val.csv --numWorkers=12 --epochs=3 --modelPath=model.pth
 
 ====================================================================================================
 bash Miniconda3-latest-Linux-x86_64.sh
@@ -51,7 +51,7 @@ python predict.py
 --trainingSetCsv=cepha_train.csv
 --testSetCsv=cepha_val.csv
 --numWorkers=12
---modelPath=model.pth
+--modelPath=model/model.pth
 --predictionsPath=predictions.csv
 
 python predict.py --use_gpu=0  --dataRoot=process_data/ --supervised_dataset_test=Test1Data/ --batchSize=1 --landmarkNum=19 --trainingSetCsv=cepha_train.csv --testSetCsv=cepha_val.csv --numWorkers=12 --modelPath=model.pth --predictionsPath=predictions.csv

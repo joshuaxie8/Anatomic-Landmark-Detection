@@ -36,7 +36,7 @@ parser.add_argument("--trainingSetCsv", type=str, default="cepha_train.csv")
 parser.add_argument("--testSetCsv", type=str, default="cepha_val.csv")
 parser.add_argument("--unsupervisedCsv", type=str, default="cepha_val.csv")
 parser.add_argument("--numWorkers", type=int, default=12)
-parser.add_argument("--modelPath", type=str, default="model.pth")
+parser.add_argument("--modelPath", type=str, default="model/model.pth")
 parser.add_argument("--predictionsPath", type=str, default="predictions.csv")
 
 def main():

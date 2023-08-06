@@ -66,7 +66,7 @@ def train_model(model, dataloaders, criterion, optimizer, config):
 		time_elapsed // 60, time_elapsed % 60))
 	
 	print('Saving model')
-	torch.save(model.state_dict(), config.saveName)
+	torch.save(model.state_dict(), config.modelPath)
 
 best_MRE = 10000
 best_SDR = []
