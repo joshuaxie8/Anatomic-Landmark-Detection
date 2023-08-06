@@ -1,0 +1,63 @@
+python main.py 
+--use_gpu=0 
+--dataRoot=process_data/
+--supervised_dataset_train=TrainingData/
+--supervised_dataset_test=Test1Data/
+--batchSize=1
+--landmarkNum=19
+--trainingSetCsv=cepha_train.csv
+--testSetCsv=cepha_val.csv
+--numWorkers=12
+--epochs=3
+--saveName=model.pth
+
+python main.py --use_gpu=0 --dataRoot=process_data/ --supervised_dataset_train=TrainingData/ --supervised_dataset_test=Test1Data/ --batchSize=1 --landmarkNum=19 --trainingSetCsv=cepha_train.csv --testSetCsv=cepha_val.csv --numWorkers=12 --epochs=3 --saveName=model.pth
+
+====================================================================================================
+bash Miniconda3-latest-Linux-x86_64.sh
+conda create --name cephalometric python=3.8
+conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 pytorch-cuda=11.6 -c pytorch -c nvidia
+conda list | grep torch
+
+python 
+import torch
+
+print(torch.version.cuda)
+print(torch.cuda.is_available())
+
+pip install matplotlib
+pip install tqdm
+pip install matplotlib
+pip install pandas
+pip install scikit-image
+====================================================================================================
+pause pod
+
+export PATH=/workspace/miniconda3/bin:$PATH
+conda init
+relog
+
+apt-get update
+apt-get install screen
+====================================================================================================
+Predict
+
+python predict.py 
+--use_gpu=0 
+--dataRoot=process_data/
+--supervised_dataset_test=Test1Data/
+--batchSize=1
+--landmarkNum=19
+--trainingSetCsv=cepha_train.csv
+--testSetCsv=cepha_val.csv
+--numWorkers=12
+--modelPath=model.pth
+--predictionsPath=predictions.csv
+
+python predict.py --use_gpu=0  --dataRoot=process_data/ --supervised_dataset_test=Test1Data/ --batchSize=1 --landmarkNum=19 --trainingSetCsv=cepha_train.csv --testSetCsv=cepha_val.csv --numWorkers=12 --modelPath=model.pth --predictionsPath=predictions.csv
+
+====================================================================================================
+# TODO: image name in process_predictions
+
+# TODO: show image with landmarks
+# TODO: for each image, check its resolution and multiply the landmarks by the ratio

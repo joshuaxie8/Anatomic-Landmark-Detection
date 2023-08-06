@@ -1,0 +1,6 @@
+*.bmp
+AnnotationsByMD/
+RawImage/
+process_data/Test1Data
+process_data/TrainingData
+__pycache__/

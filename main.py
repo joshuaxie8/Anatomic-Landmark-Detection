@@ -8,6 +8,13 @@ import models
 import train
 import lossFunction
 import argparse
+
+import torch
+
+print(torch.version.cuda)
+print(torch.cuda.is_available())
+
+
 plt.ion()   # interactive mode
 
 parser = argparse.ArgumentParser()
@@ -30,6 +37,7 @@ parser.add_argument("--unsupervised_dataset", type=str, default="cepha/")
 parser.add_argument("--trainingSetCsv", type=str, default="cepha_train.csv")
 parser.add_argument("--testSetCsv", type=str, default="cepha_val.csv")
 parser.add_argument("--unsupervisedCsv", type=str, default="cepha_val.csv")
+parser.add_argument("--numWorkers", type=int, default=12)
 
 def main():
 	config = parser.parse_args()
@@ -58,10 +66,10 @@ def main():
 	val_dataloader = []
 
 	train_dataloader_t = DataLoader(train_dataset_origin, batch_size=config.batchSize,
-						shuffle=False, num_workers=40)
+						shuffle=False, num_workers=config.numWorkers)
 
 	val_dataloader_t = DataLoader(val_dataset, batch_size=config.batchSize,
-							shuffle=False, num_workers=40)
+							shuffle=False, num_workers=config.numWorkers)
 
 	# pre-load all data into memory for efficient training
 	for data in train_dataloader_t:
@@ -86,8 +94,11 @@ def main():
 
 	optimizer_ft = optim.Adadelta(filter(lambda p: p.requires_grad,
 								 model_ft.parameters()), lr=1.0)
+	
+
 
 	train.train_model(model_ft, dataloaders, criterion, optimizer_ft, config)
 
+	
 if __name__ == "__main__":
     main()

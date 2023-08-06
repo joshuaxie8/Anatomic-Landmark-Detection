@@ -2,6 +2,7 @@ from __future__ import print_function, division
 import torch
 import time
 import utils
+import numpy as np
 from tqdm import tqdm
 
 def train_model(model, dataloaders, criterion, optimizer, config):
@@ -63,14 +64,18 @@ def train_model(model, dataloaders, criterion, optimizer, config):
 	time_elapsed = time.time() - since
 	print('Training complete in {:.0f}m {:.0f}s'.format(
 		time_elapsed // 60, time_elapsed % 60))
+	
+	print('Saving model')
+	torch.save(model.state_dict(), config.saveName)
 
 best_MRE = 10000
 best_SDR = []
 best_SD = 0
 
-def val(model, dataloaders, criterion, optimizer, config):
+def val(model, dataloaders, config):
 	since = time.time()
 	test_dev = []
+	predictions = []
 
 	for phase in ['val']:
 		model.train(False)  # Set model to evaluate mode
@@ -88,6 +93,8 @@ def val(model, dataloaders, criterion, optimizer, config):
 
 			# landmark prediction. The results are normalized to (0, 1)
 			predicted_landmarks = utils.regression_voting(heatmaps, config.R2).to(config.use_gpu)
+			predictions.append(predicted_landmarks.detach().cpu().numpy())
+			print(f"Predicted landmarks: {predicted_landmarks}")
 			# deviation calculation for all predictions
 			dev = utils.calculate_deviation(predicted_landmarks.detach(),
 											  labels.to(config.use_gpu).detach())
@@ -122,5 +129,5 @@ def val(model, dataloaders, criterion, optimizer, config):
 	# MRE is the mean radial error, SDR is the the successful detection rate in five target radius (1mm, 2mm, 2.5mm, 3mm, 4mm)
 	print("Best val MRE(SD): %f(%f), SDR([1mm, 2mm, 2.5mm, 3mm, 4mm]):" % (best_MRE, best_SD), best_SDR)
 
-
-
+	predictions = np.array(predictions)
+	return predictions
