@@ -8,6 +8,7 @@ from tqdm import tqdm
 def train_model(model, dataloaders, criterion, optimizer, config):
 	since = time.time()
 
+	losses = []
 	# validation for every 5 epoches
 	test_epoch = 5
 	for epoch in range(config.epochs):
@@ -46,6 +47,7 @@ def train_model(model, dataloaders, criterion, optimizer, config):
 			pbar.close()
 
 			epoch_loss = running_loss / lent
+			losses.append(epoch_loss)
 			print('{} epoch: {} Loss: {}'.format(phase, epoch, epoch_loss))
 
 		# validation
@@ -59,7 +61,7 @@ def train_model(model, dataloaders, criterion, optimizer, config):
 				  																		torch.mean(train_SD).detach().cpu().numpy()),
 				  																		torch.mean((train_SDR), 0).detach().cpu().numpy())
 			# validation on val dataset
-			val(model, dataloaders, criterion, optimizer, config)
+			val(model, dataloaders, config)
 
 	time_elapsed = time.time() - since
 	print('Training complete in {:.0f}m {:.0f}s'.format(
@@ -67,6 +69,8 @@ def train_model(model, dataloaders, criterion, optimizer, config):
 	
 	print('Saving model')
 	torch.save(model.state_dict(), config.modelPath)
+	losses = np.array(losses)
+	np.save(config.lossPath, losses)
 
 best_MRE = 10000
 best_SDR = []
@@ -94,7 +98,6 @@ def val(model, dataloaders, config):
 			# landmark prediction. The results are normalized to (0, 1)
 			predicted_landmarks = utils.regression_voting(heatmaps, config.R2).to(config.use_gpu)
 			predictions.append(predicted_landmarks.detach().cpu().numpy())
-			print(f"Predicted landmarks: {predicted_landmarks}")
 			# deviation calculation for all predictions
 			dev = utils.calculate_deviation(predicted_landmarks.detach(),
 											  labels.to(config.use_gpu).detach())

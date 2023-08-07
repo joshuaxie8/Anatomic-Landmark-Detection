@@ -98,7 +98,7 @@ def process_predictions(dataset_path, predictions, config):
     predictions = numpy_to_pandas(predictions, config)
 
     # insert image name in first column
-    predictions = predictions.insert(0, 'image_file', df['image_file'])
+    predictions.insert(0, 'image_file', df['image_file'])
 
     # Insert image resolution in second column
     # predictions = predictions.insert(1, 'resolution', df['resolution'])

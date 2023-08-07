@@ -11,6 +11,8 @@ SAVE_FILE_TEST_1='cepha_val.csv'
 TRAIN_IMAGES=150
 TEST_1_IMAGES=150
 TEST_2_IMAGES=100
+IMAGE_WIDTH=1935
+IMAGE_HEIGHT=2400
 
 # Image names are 001.bmp, 002.bmp, 003.bmp, ..., 400.bmp
 ZFILL_NUM=3
@@ -59,6 +61,13 @@ def add_image_name(df, start, end):
     df.insert(0, 'image_file', image_names)
     return df
 
+def normalize_landmarks(df):
+    for i in range(NUM_LANDMARKS):
+        df['x'+str(i)] = df['x'+str(i)] / IMAGE_WIDTH
+        df['y'+str(i)] = df['y'+str(i)] / IMAGE_HEIGHT
+
+    return df
+
 df = read_all_annotations()
 df = reshape_annotations(df)
 
@@ -70,6 +79,10 @@ df_train, df_test_1, df_test_2 = split_df(df)
 df_train = numpy_to_pandas(df_train)
 df_test_1 = numpy_to_pandas(df_test_1)
 df_test_2 = numpy_to_pandas(df_test_2)
+
+df_train = normalize_landmarks(df_train)
+df_test_1 = normalize_landmarks(df_test_1)
+df_test_2 = normalize_landmarks(df_test_2)
 
 df_train = add_image_name(df_train, 1, TRAIN_IMAGES+1)
 df_test_1 = add_image_name(df_test_1, TRAIN_IMAGES+1, TRAIN_IMAGES+TEST_1_IMAGES+1)
