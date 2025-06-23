@@ -53,7 +53,7 @@ def train_model(model, dataloaders, criterion, optimizer, config):
 		# validation
 		if epoch%test_epoch == 0:
 			# result statistics
-			train_dev = torch.stack(train_dev).squeeze() * config.spacing
+			train_dev = torch.cat(train_dev, dim=0) * config.spacing
 			train_SDR, train_SD, train_MRE = utils.get_statistical_results(train_dev, config)
 
 			# MRE is the mean radial error, SDR is the the successful detection rate in five target radius (1mm, 2mm, 2.5mm, 3mm, 4mm)
@@ -97,7 +97,7 @@ def val(model, dataloaders, config):
 
 			# landmark prediction. The results are normalized to (0, 1)
 			predicted_landmarks = utils.regression_voting(heatmaps, config.R2).to(config.use_gpu)
-			predictions.append(predicted_landmarks.detach().cpu().numpy())
+			predictions.append(predicted_landmarks.detach().cpu())
 			# deviation calculation for all predictions
 			dev = utils.calculate_deviation(predicted_landmarks.detach(),
 											  labels.to(config.use_gpu).detach())
@@ -107,7 +107,7 @@ def val(model, dataloaders, config):
 		pbar.close()
 
 	# statistics
-	test_dev = torch.stack(test_dev).squeeze() * config.spacing
+	test_dev = torch.cat(test_dev, dim=0) * config.spacing
 	test_SDR, test_SD, test_MRE = utils.get_statistical_results(test_dev, config)
 
 	# MRE is the mean radial error, SDR is the the successful detection rate in five target radius (1mm, 2mm, 2.5mm, 3mm, 4mm)
@@ -132,5 +132,6 @@ def val(model, dataloaders, config):
 	# MRE is the mean radial error, SDR is the the successful detection rate in five target radius (1mm, 2mm, 2.5mm, 3mm, 4mm)
 	print("Best val MRE(SD): %f(%f), SDR([1mm, 2mm, 2.5mm, 3mm, 4mm]):" % (best_MRE, best_SD), best_SDR)
 
-	predictions = np.array(predictions)
+	# Convert predictions list to tensor, handling variable batch sizes
+	predictions = torch.cat(predictions, dim=0).numpy()
 	return predictions

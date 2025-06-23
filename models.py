@@ -144,7 +144,8 @@ class fusionResNet50(nn.Module):
 		return coordinateMean1, coordinateMean2, coordinateDev
 
 	def getAttention(self, bone, fnum):
-		bone = self.avgPool8t(bone).view(fnum, -1)
+		# Average across batch dimension, then reshape
+		bone = self.avgPool8t(bone).mean(dim=0).view(fnum, -1)
 		bone = bone.unsqueeze(1)
 		y = self.attentionLayer1(bone).squeeze(1).transpose(1, 0)
 
@@ -158,7 +159,10 @@ class fusionResNet50(nn.Module):
 			attention = attention.view(1, channelNum, 1, 1)
 			attentionMap = attention * bone * channelNum
 			attentionMaps.append(self.moduleList[i](attentionMap))
-		attentionMaps = torch.stack(attentionMaps).squeeze().unsqueeze(0)
+
+		# Handle batch dimension properly
+		attentionMaps = torch.stack(attentionMaps, dim=1)  # Stack along feature dimension
+		attentionMaps = attentionMaps.squeeze(2)  # Remove the single channel dimension
 		return attentionMaps
 
 	def forward(self, x):
@@ -290,7 +294,8 @@ class fusionVGG19(nn.Module):
 		return coordinateMean1, coordinateMean2, coordinateDev
 
 	def getAttention(self, bone, fnum):
-		bone = self.avgPool8t(bone).view(fnum, -1)
+		# Average across batch dimension, then reshape
+		bone = self.avgPool8t(bone).mean(dim=0).view(fnum, -1)
 		bone = bone.unsqueeze(1)
 		y = self.attentionLayer1(bone).squeeze(1).transpose(1, 0)
 		return y
@@ -305,7 +310,9 @@ class fusionVGG19(nn.Module):
 			attentionMap = attention * bone * channelNum
 			attentionMaps.append(self.moduleList[i](attentionMap))
 
-		attentionMaps = torch.stack(attentionMaps).squeeze().unsqueeze(0)
+		# Handle batch dimension properly
+		attentionMaps = torch.stack(attentionMaps, dim=1)  # Stack along feature dimension
+		attentionMaps = attentionMaps.squeeze(2)  # Remove the single channel dimension
 		return attentionMaps
 
 	def forward(self, x):

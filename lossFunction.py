@@ -62,7 +62,7 @@ class fusionLossFunc_improved(nn.Module):
 		self.offsetMapx = Variable(torch.from_numpy(self.offsetMapx)).cuda(self.use_gpu).float() / config.R2
 		self.offsetMapy = Variable(torch.from_numpy(self.offsetMapy)).cuda(self.use_gpu).float() / config.R2
 		
-		self.zeroTensor = torch.zeros((self.imageNum, self.landmarkNum, self.higth, self.width)).cuda(self.use_gpu)
+		# self.zeroTensor = torch.zeros((self.imageNum, self.landmarkNum, self.higth, self.width)).cuda(self.use_gpu)
 		
 		return
 	
@@ -74,28 +74,34 @@ class fusionLossFunc_improved(nn.Module):
 		
 	def forward(self, featureMaps, landmarks):
 		h, w = featureMaps.size()[2], featureMaps.size()[3]
+		current_batch_size = landmarks.size()[0]
+
 		X = np.round((landmarks[:, :, 0] * (h - 1)).numpy()).astype("int")
 		Y = np.round((landmarks[:, :, 1] * (w - 1)).numpy()).astype("int")
-		binary_class_groundTruth = self.binary_class_groundTruth1
 
-		for imageId in range(self.imageNum):
+		binary_class_groundTruth = torch.zeros(current_batch_size, self.landmarkNum, h, w).cuda(self.use_gpu)
+		offsetMapX_groundTruth = torch.zeros(current_batch_size, self.landmarkNum, h, w).cuda(self.use_gpu)
+		offsetMapY_groundTruth = torch.zeros(current_batch_size, self.landmarkNum, h, w).cuda(self.use_gpu)
+
+
+		for imageId in range(current_batch_size):
 			for landmarkId in range(self.landmarkNum):
 				#~ self.binary_class_groundTruth[imageId, landmarkId, :, :] = self.HeatMap[h - X[imageId][landmarkId]: 2*h - X[imageId][landmarkId], w - Y[imageId][landmarkId]: 2*w - Y[imageId][landmarkId]]
 				binary_class_groundTruth[imageId, landmarkId, :, :] = self.HeatMap[h - X[imageId][landmarkId]: 2*h - X[imageId][landmarkId], w - Y[imageId][landmarkId]: 2*w - Y[imageId][landmarkId]]
-				self.offsetMapX_groundTruth[imageId, landmarkId, :, :] = self.offsetMapx[h - X[imageId][landmarkId]: 2*h - X[imageId][landmarkId], w - Y[imageId][landmarkId]: 2*w - Y[imageId][landmarkId]]
-				self.offsetMapY_groundTruth[imageId, landmarkId, :, :] = self.offsetMapy[h - X[imageId][landmarkId]: 2*h - X[imageId][landmarkId], w - Y[imageId][landmarkId]: 2*w - Y[imageId][landmarkId]]
+				offsetMapX_groundTruth[imageId, landmarkId, :, :] = self.offsetMapx[h - X[imageId][landmarkId]: 2*h - X[imageId][landmarkId], w - Y[imageId][landmarkId]: 2*w - Y[imageId][landmarkId]]
+				offsetMapY_groundTruth[imageId, landmarkId, :, :] = self.offsetMapy[h - X[imageId][landmarkId]: 2*h - X[imageId][landmarkId], w - Y[imageId][landmarkId]: 2*w - Y[imageId][landmarkId]]
 
 		indexs = binary_class_groundTruth > 0
 		temloss = [[2*self.binaryLoss(featureMaps[imageId][landmarkId], binary_class_groundTruth[imageId][landmarkId]), \
 					
 					self.l1Loss(featureMaps[imageId][landmarkId + self.landmarkNum*1][indexs[imageId][landmarkId]], \
-						self.offsetMapX_groundTruth[imageId][landmarkId][indexs[imageId][landmarkId]]) , \
+						offsetMapX_groundTruth[imageId][landmarkId][indexs[imageId][landmarkId]]) , \
 						
 					self.l1Loss(featureMaps[imageId][landmarkId + self.landmarkNum*2][indexs[imageId][landmarkId]], \
-						self.offsetMapY_groundTruth[imageId][landmarkId][indexs[imageId][landmarkId]])]
+						offsetMapY_groundTruth[imageId][landmarkId][indexs[imageId][landmarkId]])]
 
-					for imageId in range(self.imageNum)
+					for imageId in range(current_batch_size)
 					for landmarkId in range(self.landmarkNum)]
-		loss1 = (sum([sum(temloss[ind]) for ind in range(self.imageNum * self.landmarkNum)]))/(self.imageNum * self.landmarkNum)
+		loss1 = (sum([sum(temloss[ind]) for ind in range(current_batch_size * self.landmarkNum)]))/(current_batch_size * self.landmarkNum)
 
 		return loss1
