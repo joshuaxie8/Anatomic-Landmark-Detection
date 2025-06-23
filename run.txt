@@ -10,9 +10,9 @@ python main.py
 --numWorkers=12
 --epochs=400
 --modelPath=model/model.pth
---lossPath=model/loss.pth
+--lossPath=model/loss.npy
 
-python main.py --use_gpu=0 --dataRoot=process_data/ --supervised_dataset_train=TrainingData/ --supervised_dataset_test=Test1Data/ --batchSize=1 --landmarkNum=19 --trainingSetCsv=cepha_train.csv --testSetCsv=cepha_val.csv --numWorkers=12 --epochs=400 --modelPath=model/model.pth --lossPath=model/loss.pth
+python main.py --use_gpu=0 --dataRoot=process_data/ --supervised_dataset_train=TrainingData/ --supervised_dataset_test=Test1Data/ --batchSize=1 --landmarkNum=19 --trainingSetCsv=cepha_train.csv --testSetCsv=cepha_val.csv --numWorkers=12 --epochs=400 --modelPath=model/model.pth --lossPath=model/loss.npy
 
 ====================================================================================================
 bash Miniconda3-latest-Linux-x86_64.sh
