@@ -1,37 +1,22 @@
-python main.py 
---use_gpu=0 
---dataRoot=process_data/
---supervised_dataset_train=TrainingData/
---supervised_dataset_test=Test1Data/
---batchSize=4
---landmarkNum=19
---trainingSetCsv=cepha_train.csv
---testSetCsv=cepha_val.csv
---numWorkers=16
---epochs=400
---modelPath=model/model.pth
---lossPath=model/loss.npy
+# Step 1: Preprocess images (run this once)
+python preprocess_images.py
 
-python main.py --use_gpu=0 --dataRoot=process_data/ --supervised_dataset_train=TrainingData/ --supervised_dataset_test=Test1Data/ --batchSize=4 --landmarkNum=19 --trainingSetCsv=cepha_train.csv --testSetCsv=cepha_val.csv --numWorkers=16 --epochs=15 --modelPath=model/model.pth --lossPath=model/loss.npy
+# Step 2: Train with preprocessed images (much faster!)
+python main_preprocessed.py --use_gpu=0 --dataRoot=process_data/ --supervised_dataset_train=TrainingData_preprocessed/ --supervised_dataset_test=Test1Data_preprocessed/ --batchSize=4 --landmarkNum=19 --trainingSetCsv=cepha_train.csv --testSetCsv=cepha_val.csv --numWorkers=20 --epochs=400 --modelPath=model/model.pth --lossPath=model/loss.npy
+
+# Alternative: Original training command (slower due to on-the-fly image resizing)
+python main.py --use_gpu=0 --dataRoot=process_data/ --supervised_dataset_train=TrainingData/ --supervised_dataset_test=Test1Data/ --batchSize=1 --landmarkNum=19 --trainingSetCsv=cepha_train.csv --testSetCsv=cepha_val.csv --numWorkers=12 --epochs=400 --modelPath=model/model.pth --lossPath=model/loss.npy
 
 ====================================================================================================
 bash Miniconda3-latest-Linux-x86_64.sh
 conda create --name cephalometric python=3.8
+conda activate cephalometric
 conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 pytorch-cuda=11.6 -c pytorch -c nvidia
-conda list | grep torch
 
-python 
-import torch
+pip install matplotlib tqdm pandas scikit-image
 
-print(torch.version.cuda)
-print(torch.cuda.is_available())
+python -c "import torch; print('CUDA version:', torch.version.cuda); print('CUDA available:', torch.cuda.is_available())"
 
-pip install matplotlib
-pip install tqdm
-pip install matplotlib
-pip install pandas
-pip install scikit-image
-====================================================================================================
 pause pod
 
 export PATH=/workspace/miniconda3/bin:$PATH
