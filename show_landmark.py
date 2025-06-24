@@ -22,6 +22,11 @@ predictions = pd.read_csv(PREDICTIONS_PATH)
 labels = pd.read_csv(LABELS_PATH)
 
 def plot_image(image, landmark=None, label=None):
+    if landmark is not None and label is not None:
+        # Draw thin red lines from ground truth to predictions
+        for i in range(len(label)):
+            plt.plot([label[i,0], landmark[i,0]], [label[i,1], landmark[i,1]], 'r-', linewidth=0.5, alpha=0.7)
+    
     if landmark is not None:
         plt.scatter(landmark[:,0], landmark[:,1], c = 'r', s = 5, alpha=0.5)
 
