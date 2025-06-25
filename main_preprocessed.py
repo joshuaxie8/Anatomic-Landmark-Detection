@@ -44,6 +44,14 @@ parser.add_argument("--lossPath", type=str, default="model/loss.npy")
 def main():
 	config = parser.parse_args()
 	model_ft = models.fusionVGG19(torchvision.models.vgg19_bn(pretrained=True), config).cuda(config.use_gpu)
+	
+	# Load existing model if it exists
+	try:
+		model_ft.load_state_dict(torch.load(config.modelPath))
+		print(f"Loaded existing model from {config.modelPath}")
+	except FileNotFoundError:
+		print(f"No existing model found at {config.modelPath}, starting from scratch")
+	
 	print ("image scale ", config.image_scale)
 	print ("GPU: ", config.use_gpu)
 
@@ -95,7 +103,7 @@ def main():
 	criterion = lossFunction.fusionLossFunc_improved(config)
 
 	optimizer_ft = optim.Adadelta(filter(lambda p: p.requires_grad,
-								 model_ft.parameters()), lr=1.0)
+								 model_ft.parameters()), lr=1.0, weight_decay=1e-4)
 	
 
 

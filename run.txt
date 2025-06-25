@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Step 1: Preprocess images (run this once)
 python preprocess_images.py
 
@@ -48,71 +46,6 @@ python predict.py --use_gpu=0  --dataRoot=process_data/ --supervised_dataset_tes
 # TODO: image name in process_predictions
 
 # TODO: show image with landmarks
-=======
-python main.py 
---use_gpu=0 
---dataRoot=process_data/
---supervised_dataset_train=TrainingData/
---supervised_dataset_test=Test1Data/
---batchSize=1
---landmarkNum=19
---trainingSetCsv=cepha_train.csv
---testSetCsv=cepha_val.csv
---numWorkers=12
---epochs=400
---modelPath=model/model.pth
---lossPath=model/loss.npy
-
-python main.py --use_gpu=0 --dataRoot=process_data/ --supervised_dataset_train=TrainingData/ --supervised_dataset_test=Test1Data/ --batchSize=1 --landmarkNum=19 --trainingSetCsv=cepha_train.csv --testSetCsv=cepha_val.csv --numWorkers=12 --epochs=400 --modelPath=model/model.pth --lossPath=model/loss.npy
-
-====================================================================================================
-bash Miniconda3-latest-Linux-x86_64.sh
-conda create --name cephalometric python=3.8
-conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 pytorch-cuda=11.6 -c pytorch -c nvidia
-conda list | grep torch
-
-python 
-import torch
-
-print(torch.version.cuda)
-print(torch.cuda.is_available())
-
-pip install matplotlib
-pip install tqdm
-pip install matplotlib
-pip install pandas
-pip install scikit-image
-====================================================================================================
-pause pod
-
-export PATH=/workspace/miniconda3/bin:$PATH
-conda init
-relog
-
-apt-get update
-apt-get install screen
-====================================================================================================
-Predict
-
-python predict.py 
---use_gpu=0 
---dataRoot=process_data/
---supervised_dataset_test=Test1Data/
---batchSize=1
---landmarkNum=19
---trainingSetCsv=cepha_train.csv
---testSetCsv=cepha_val.csv
---numWorkers=12
---modelPath=model/model.pth
---predictionsPath=predictions.csv
-
-python predict.py --use_gpu=0  --dataRoot=process_data/ --supervised_dataset_test=Test1Data/ --batchSize=1 --landmarkNum=19 --trainingSetCsv=cepha_train.csv --testSetCsv=cepha_val.csv --numWorkers=12 --modelPath=model.pth --predictionsPath=predictions.csv
-
-====================================================================================================
-# TODO: image name in process_predictions
-
-# TODO: show image with landmarks
->>>>>>> df535af0d16ee542adf7bb1104563b7ce69ae46e
 =======
 python main.py 
 --use_gpu=0 

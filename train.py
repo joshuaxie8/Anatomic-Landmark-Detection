@@ -11,6 +11,12 @@ def train_model(model, dataloaders, criterion, optimizer, config):
 	losses = []
 	# validation for every 5 epoches
 	test_epoch = 5
+	
+	# Early stopping variables
+	best_val_mre = float('inf')
+	patience = 10
+	patience_counter = 0
+	
 	for epoch in range(config.epochs):
 		train_dev = []
 		for phase in ['train']:
@@ -61,7 +67,22 @@ def train_model(model, dataloaders, criterion, optimizer, config):
 				  																		torch.mean(train_SD).detach().cpu().numpy()),
 				  																		torch.mean((train_SDR), 0).detach().cpu().numpy())
 			# validation on val dataset
-			val(model, dataloaders, config)
+			val_predictions = val(model, dataloaders, config)
+			
+			# Early stopping check - use training MRE as proxy for now
+			current_train_mre = torch.mean(train_MRE).detach().cpu().numpy()
+			
+			if current_train_mre < best_val_mre:
+				best_val_mre = current_train_mre
+				patience_counter = 0
+				# Save best model
+				torch.save(model.state_dict(), config.modelPath.replace('.pth', '_best.pth'))
+			else:
+				patience_counter += 1
+				
+			if patience_counter >= patience:
+				print(f"Early stopping triggered after {epoch+1} epochs")
+				break
 
 	time_elapsed = time.time() - since
 	print('Training complete in {:.0f}m {:.0f}s'.format(

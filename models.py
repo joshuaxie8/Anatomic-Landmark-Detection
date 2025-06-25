@@ -62,24 +62,28 @@ class fusionResNet50(nn.Module):
 			nn.Conv2d(2048, fnum, kernel_size=(1, 1), stride=1, padding = 0 ),
 			nn.BatchNorm2d(fnum,track_running_stats=False),
 			nn.ReLU(True),
+			nn.Dropout2d(0.5),
 		)
 
 		self.f_conv3 = nn.Sequential(
 			nn.Conv2d(1024, fnum, kernel_size=(1, 1), stride=1, padding = 0 ),
 			nn.BatchNorm2d(fnum,track_running_stats=False),
 			nn.ReLU(True),
+			nn.Dropout2d(0.5),
 		)
 
 		self.f_conv2 = nn.Sequential(
 			nn.Conv2d(512, fnum, kernel_size=(1, 1), stride=1, padding = 0 ),
 			nn.BatchNorm2d(fnum,track_running_stats=False),
 			nn.ReLU(True),
+			nn.Dropout2d(0.5),
 		)
 
 		self.f_conv1 = nn.Sequential(
 			nn.Conv2d(256, fnum, kernel_size=(1, 1), stride=1, padding = 0 ),
 			nn.BatchNorm2d(fnum,track_running_stats=False),
 			nn.ReLU(True),
+			nn.Dropout2d(0.5),
 		)
 
 		self.avgPool8t = nn.AvgPool2d(8, 8)
@@ -89,6 +93,7 @@ class fusionResNet50(nn.Module):
 			nn.Linear(500, 128, bias = False),
 			nn.BatchNorm1d(1,track_running_stats=False),
 			nn.Tanh(),
+			nn.Dropout(0.5),
 			nn.Linear(128, landmarksNum*3, bias = False),
 			#~ nn.BatchNorm1d(1,track_running_stats=False),
 			nn.Softmax(dim = 0)
@@ -208,24 +213,28 @@ class fusionVGG19(nn.Module):
 			nn.Conv2d(512, fnum, kernel_size=(1, 1), stride=1, padding = 0 ),
 			nn.BatchNorm2d(fnum,track_running_stats=False),
 			nn.ReLU(True),
+			nn.Dropout2d(0.5),
 		)
 		
 		self.f_conv3 = nn.Sequential(
 			nn.Conv2d(512, fnum, kernel_size=(1, 1), stride=1, padding = 0 ),
 			nn.BatchNorm2d(fnum,track_running_stats=False),
 			nn.ReLU(True),
+			nn.Dropout2d(0.5),
 		)
 		
 		self.f_conv2 = nn.Sequential(
 			nn.Conv2d(256, fnum, kernel_size=(1, 1), stride=1, padding = 0 ),
 			nn.BatchNorm2d(fnum,track_running_stats=False),
 			nn.ReLU(True),
+			nn.Dropout2d(0.5),
 		)
 		
 		self.f_conv1 = nn.Sequential(
 			nn.Conv2d(128, fnum, kernel_size=(1, 1), stride=1, padding = 0 ),
 			nn.BatchNorm2d(fnum,track_running_stats=False),
 			nn.ReLU(True),
+			nn.Dropout2d(0.5),
 		)
 		
 		self.avgPool8t = nn.AvgPool2d(8, 8)
@@ -235,6 +244,7 @@ class fusionVGG19(nn.Module):
 			nn.Linear(500, 128, bias = False),
 			nn.BatchNorm1d(1,track_running_stats=False),
 			nn.Tanh(),
+			nn.Dropout(0.5),
 			nn.Linear(128, config.landmarkNum*3, bias = False),
 			nn.Softmax(dim = 0)
 		)
