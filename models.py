@@ -337,4 +337,3 @@ class fusionVGG19(nn.Module):
 		return [y]
 
 
-
