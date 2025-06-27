@@ -4,6 +4,13 @@ RawImage/
 process_data/Test1Data
 process_data/TrainingData
 __pycache__/
+<<<<<<< HEAD
 
 ald/
 .DS_Store
+=======
+model/
+
+# virtual environment
+ald/
+>>>>>>> a830cf092b097a3f67af1277d065783b9af8bc2f
