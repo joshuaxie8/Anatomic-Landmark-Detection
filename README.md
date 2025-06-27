@@ -13,6 +13,42 @@ This is the source code of [Cephalometric Landmark Detection by Attentive Featur
 ## Training and validation
 - python main.py
 
+## Continue Training
+The system now supports continuing training from an existing model checkpoint. This is useful for:
+- Resuming training after interruption
+- Extending training beyond the original number of epochs
+- Fine-tuning with different parameters
+
+### Usage
+1. **Continue training (default behavior):**
+   ```bash
+   python main.py
+   ```
+
+2. **Start training from scratch (ignore existing model):**
+   ```bash
+   python main.py --continue_training 0
+   ```
+
+3. **Continue training with custom parameters:**
+   ```bash
+   python main.py --epochs 500 --batchSize 2 --continue_training 1
+   ```
+
+### How it works
+- If `model/model.pth` exists and `--continue_training` is enabled (default), the system will:
+  - Load the model state from the checkpoint
+  - Load training history from `model/loss.npy` (if available)
+  - Load optimizer state from `model/model_optimizer.pth` (if available)
+  - Resume training from the last completed epoch
+- The system saves checkpoints every 10 epochs and at the end of training
+- Training history is preserved and extended
+
+### Files created during training
+- `model/model.pth`: Model state dictionary
+- `model/model_optimizer.pth`: Optimizer state dictionary
+- `model/loss.npy`: Training loss history
+
 ## Reference
 
 If you found this code useful, please cite the following paper:

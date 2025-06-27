@@ -8,6 +8,8 @@ import models
 import train
 import lossFunction
 import argparse
+import os
+import numpy as np
 
 import torch
 
@@ -40,12 +42,40 @@ parser.add_argument("--unsupervisedCsv", type=str, default="cepha_val.csv")
 parser.add_argument("--numWorkers", type=int, default=12)
 parser.add_argument("--modelPath", type=str, default="model/model.pth")
 parser.add_argument("--lossPath", type=str, default="model/loss.npy")
+parser.add_argument("--continue_training", type=int, default=1, help="Continue training from existing model if available (1=yes, 0=no)")
 
 def main():
 	config = parser.parse_args()
 	model_ft = models.fusionVGG19(torchvision.models.vgg19_bn(pretrained=True), config).cuda(config.use_gpu)
 	print ("image scale ", config.image_scale)
 	print ("GPU: ", config.use_gpu)
+
+	# Check if model exists and continue training is enabled
+	start_epoch = 0
+	losses = []
+	
+	if config.continue_training and os.path.exists(config.modelPath):
+		print(f"Found existing model at {config.modelPath}, loading to continue training...")
+		try:
+			# Load model state
+			model_ft.load_state_dict(torch.load(config.modelPath, map_location=f'cuda:{config.use_gpu}'))
+			print("Model state loaded successfully")
+			
+			# Load training history if available
+			if os.path.exists(config.lossPath):
+				losses = list(np.load(config.lossPath))
+				start_epoch = len(losses)
+				print(f"Loaded training history with {start_epoch} epochs completed")
+			else:
+				print("No training history found, starting from epoch 0")
+				
+		except Exception as e:
+			print(f"Error loading model: {e}")
+			print("Starting training from scratch")
+			start_epoch = 0
+			losses = []
+	else:
+		print("Starting training from scratch")
 
 	transform_origin=torchvision.transforms.Compose([
 					Rescale(config.image_scale),
@@ -97,9 +127,18 @@ def main():
 	optimizer_ft = optim.Adadelta(filter(lambda p: p.requires_grad,
 								 model_ft.parameters()), lr=1.0)
 	
+	# Load optimizer state if continuing training
+	if config.continue_training and os.path.exists(config.modelPath.replace('.pth', '_optimizer.pth')):
+		try:
+			optimizer_ft.load_state_dict(torch.load(config.modelPath.replace('.pth', '_optimizer.pth'), 
+												  map_location=f'cuda:{config.use_gpu}'))
+			print("Optimizer state loaded successfully")
+		except Exception as e:
+			print(f"Error loading optimizer state: {e}")
+			print("Using fresh optimizer state")
 
-
-	train.train_model(model_ft, dataloaders, criterion, optimizer_ft, config)
+	# Pass start_epoch and losses to train function
+	train.train_model(model_ft, dataloaders, criterion, optimizer_ft, config, start_epoch=start_epoch, losses=losses)
 
 	
 if __name__ == "__main__":

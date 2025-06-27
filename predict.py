@@ -90,11 +90,11 @@ def main():
     predictions = process_predictions(config.dataRoot + config.testSetCsv, predictions, config)
 
     # Save predictions
-    predictions.to_csv(config.dataRoot + config.predictionsPath, index=False)
+    predictions.to_csv(config.dataRoot + config.predictionsPath, index=False, encoding='utf-8')
 
 # combine image name and resolution with predictions
 def process_predictions(dataset_path, predictions, config):
-    df = pd.read_csv(dataset_path)
+    df = pd.read_csv(dataset_path, encoding='utf-8')
     predictions = numpy_to_pandas(predictions, config)
 
     # insert image name in first column

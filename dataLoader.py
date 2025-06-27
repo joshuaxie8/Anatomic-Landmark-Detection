@@ -98,7 +98,7 @@ class LandmarksDataset(Dataset):
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         """
-        self.landmarks_frame = pd.read_csv(csv_file)
+        self.landmarks_frame = pd.read_csv(csv_file, encoding='utf-8')
         self.root_dir = root_dir
         self.transform = transform
         self.landmarkNum = landmarksNum
