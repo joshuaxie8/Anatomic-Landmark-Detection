@@ -34,7 +34,7 @@ def reflect_landmark(landmark, width, height):
 def plot_image(image, landmark=None, label=None):
 
     if landmark is not None:
-        landmark = reflect_landmark(landmark, image.size[0], image.size[1])
+        # landmark = reflect_landmark(landmark, image.size[0], image.size[1])
         plt.scatter(landmark[:,0], landmark[:,1], c = 'r', s = 5, alpha=0.5)
 
     if label is not None:

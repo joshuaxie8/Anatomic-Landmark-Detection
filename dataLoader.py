@@ -80,8 +80,8 @@ class ToTensor(object):
         # numpy image: H x W x C
         # torch image: C X H X W
         image = image.transpose((2, 0, 1))
-        landmarks = np.zeros(tlandmarks.shape)
-        landmarks[:, 0], landmarks[:, 1] = tlandmarks[:, 1], tlandmarks[:, 0]
+        # FIXED: Remove the incorrect coordinate swap - landmarks don't need axis swapping
+        landmarks = tlandmarks.copy()
         return {'image': torch.from_numpy(image).float(),
                 'landmarks': torch.from_numpy(landmarks).float()}
         # 'targetMaps': [torch.from_numpy(targetMap).float() for targetMap in targetMaps]}
