@@ -28,6 +28,12 @@ def plot_image(image, landmark=None, label=None):
     if label is not None:
         plt.scatter(label[:,0], label[:,1], c = 'g', s = 5, alpha=0.5)
 
+    # Draw thin red lines between predicted and ground truth landmarks
+    if landmark is not None and label is not None:
+        for i in range(len(landmark)):
+            plt.plot([landmark[i,0], label[i,0]], [landmark[i,1], label[i,1]], 
+                    color='red', linewidth=0.5, alpha=0.7)
+
     plt.imshow(image)
     plt.show()
 
