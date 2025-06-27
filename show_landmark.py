@@ -58,7 +58,6 @@ image_landmark = resize_landmark(image_landmark, image)
 
 label = get_labels(image_idx)
 label = reshape_landmark(label)
-label = resize_landmark(label, image)
 
 print(f'resized: {image_landmark}')
 print(f'label: {label}')
