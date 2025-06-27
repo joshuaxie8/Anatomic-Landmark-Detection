@@ -4,3 +4,6 @@ RawImage/
 process_data/Test1Data
 process_data/TrainingData
 __pycache__/
+
+ald/
+.DS_Store
