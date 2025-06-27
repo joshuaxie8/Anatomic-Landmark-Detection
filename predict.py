@@ -29,9 +29,9 @@ parser.add_argument("--stage", type=str, default="train")
 parser.add_argument("--saveName", type=str, default="test1")
 parser.add_argument("--testName", type=str, default="30cepha100_fusion_unsuper.pkl")
 parser.add_argument("--dataRoot", type=str, default="process_data/")
-parser.add_argument("--supervised_dataset_train", type=str, default="cepha/")
-parser.add_argument("--supervised_dataset_test", type=str, default="cepha/")
-parser.add_argument("--unsupervised_dataset", type=str, default="cepha/")
+parser.add_argument("--supervised_dataset_train", type=str, default="TrainingData/")
+parser.add_argument("--supervised_dataset_test", type=str, default="Test1Data/")
+parser.add_argument("--unsupervised_dataset", type=str, default="Test1Data/")
 parser.add_argument("--trainingSetCsv", type=str, default="cepha_train.csv")
 parser.add_argument("--testSetCsv", type=str, default="cepha_val.csv")
 parser.add_argument("--unsupervisedCsv", type=str, default="cepha_val.csv")
@@ -90,11 +90,11 @@ def main():
     predictions = process_predictions(config.dataRoot + config.testSetCsv, predictions, config)
 
     # Save predictions
-    predictions.to_csv(config.dataRoot + config.predictionsPath, index=False)
+    predictions.to_csv(config.dataRoot + config.predictionsPath, index=False, encoding='utf-8')
 
 # combine image name and resolution with predictions
 def process_predictions(dataset_path, predictions, config):
-    df = pd.read_csv(dataset_path)
+    df = pd.read_csv(dataset_path, encoding='utf-8')
     predictions = numpy_to_pandas(predictions, config)
 
     # insert image name in first column

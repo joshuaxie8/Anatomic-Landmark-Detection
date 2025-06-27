@@ -5,19 +5,15 @@ import utils
 import numpy as np
 from tqdm import tqdm
 
-def train_model(model, dataloaders, criterion, optimizer, config):
+def train_model(model, dataloaders, criterion, optimizer, config, start_epoch=0, losses=None):
 	since = time.time()
 
-	losses = []
+	if losses is None:
+		losses = []
+	
 	# validation for every 5 epoches
 	test_epoch = 5
-	
-	# Early stopping variables
-	best_val_mre = float('inf')
-	patience = 10
-	patience_counter = 0
-	
-	for epoch in range(config.epochs):
+	for epoch in range(start_epoch, config.epochs):
 		train_dev = []
 		for phase in ['train']:
 			model.train(True)  # Set model to training mode
@@ -59,7 +55,7 @@ def train_model(model, dataloaders, criterion, optimizer, config):
 		# validation
 		if epoch%test_epoch == 0:
 			# result statistics
-			train_dev = torch.cat(train_dev, dim=0) * config.spacing
+			train_dev = torch.stack(train_dev).squeeze() * config.spacing
 			train_SDR, train_SD, train_MRE = utils.get_statistical_results(train_dev, config)
 
 			# MRE is the mean radial error, SDR is the the successful detection rate in five target radius (1mm, 2mm, 2.5mm, 3mm, 4mm)
@@ -67,29 +63,22 @@ def train_model(model, dataloaders, criterion, optimizer, config):
 				  																		torch.mean(train_SD).detach().cpu().numpy()),
 				  																		torch.mean((train_SDR), 0).detach().cpu().numpy())
 			# validation on val dataset
-			val_predictions = val(model, dataloaders, config)
-			
-			# Early stopping check - use training MRE as proxy for now
-			current_train_mre = torch.mean(train_MRE).detach().cpu().numpy()
-			
-			if current_train_mre < best_val_mre:
-				best_val_mre = current_train_mre
-				patience_counter = 0
-				# Save best model
-				torch.save(model.state_dict(), config.modelPath.replace('.pth', '_best.pth'))
-			else:
-				patience_counter += 1
-				
-			if patience_counter >= patience:
-				print(f"Early stopping triggered after {epoch+1} epochs")
-				break
+			val(model, dataloaders, config)
+
+		# Save model and optimizer state periodically
+		if epoch % 10 == 0 or epoch == config.epochs - 1:
+			print(f'Saving model at epoch {epoch}')
+			torch.save(model.state_dict(), config.modelPath)
+			torch.save(optimizer.state_dict(), config.modelPath.replace('.pth', '_optimizer.pth'))
+			np.save(config.lossPath, np.array(losses))
 
 	time_elapsed = time.time() - since
 	print('Training complete in {:.0f}m {:.0f}s'.format(
 		time_elapsed // 60, time_elapsed % 60))
 	
-	print('Saving model')
+	print('Saving final model')
 	torch.save(model.state_dict(), config.modelPath)
+	torch.save(optimizer.state_dict(), config.modelPath.replace('.pth', '_optimizer.pth'))
 	losses = np.array(losses)
 	np.save(config.lossPath, losses)
 
@@ -118,7 +107,7 @@ def val(model, dataloaders, config):
 
 			# landmark prediction. The results are normalized to (0, 1)
 			predicted_landmarks = utils.regression_voting(heatmaps, config.R2).to(config.use_gpu)
-			predictions.append(predicted_landmarks.detach().cpu())
+			predictions.append(predicted_landmarks.detach().cpu().numpy())
 			# deviation calculation for all predictions
 			dev = utils.calculate_deviation(predicted_landmarks.detach(),
 											  labels.to(config.use_gpu).detach())
@@ -128,7 +117,7 @@ def val(model, dataloaders, config):
 		pbar.close()
 
 	# statistics
-	test_dev = torch.cat(test_dev, dim=0) * config.spacing
+	test_dev = torch.stack(test_dev).squeeze() * config.spacing
 	test_SDR, test_SD, test_MRE = utils.get_statistical_results(test_dev, config)
 
 	# MRE is the mean radial error, SDR is the the successful detection rate in five target radius (1mm, 2mm, 2.5mm, 3mm, 4mm)
@@ -153,6 +142,5 @@ def val(model, dataloaders, config):
 	# MRE is the mean radial error, SDR is the the successful detection rate in five target radius (1mm, 2mm, 2.5mm, 3mm, 4mm)
 	print("Best val MRE(SD): %f(%f), SDR([1mm, 2mm, 2.5mm, 3mm, 4mm]):" % (best_MRE, best_SD), best_SDR)
 
-	# Convert predictions list to tensor, handling variable batch sizes
-	predictions = torch.cat(predictions, dim=0).numpy()
+	predictions = np.array(predictions)
 	return predictions
