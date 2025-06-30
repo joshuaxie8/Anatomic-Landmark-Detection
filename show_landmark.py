@@ -5,21 +5,21 @@ import argparse
 
 from PIL import Image
 
-PREDICTIONS_PATH='process_data/predictions.csv'
-IMAGES_PATH='process_data/Test1Data'
-LABELS_PATH='process_data/cepha_val.csv'
 LANDMARK_COL_START=1
 
 # Parser
 parser = argparse.ArgumentParser()
 parser.add_argument("--imgNum", type=int, default=1)
+parser.add_argument("--predictionsPath", type=str, default="process_data/predictions.csv")
+parser.add_argument("--labelsPath", type=str, default="process_data/cepha_val.csv")
+parser.add_argument("--imagesPath", type=str, default="process_data/Test1Data")
 config = parser.parse_args()
 
 image_idx=config.imgNum
 
 # Read predictions
-predictions = pd.read_csv(PREDICTIONS_PATH)
-labels = pd.read_csv(LABELS_PATH)
+predictions = pd.read_csv(config.predictionsPath)
+labels = pd.read_csv(config.labelsPath)
 
 def reflect_landmark(landmark, width, height):
     m = height/width
@@ -68,7 +68,7 @@ def get_labels(idx):
     return image_landmark
 
 print(f'Open image {predictions["image_file"][image_idx]}')
-image = Image.open(IMAGES_PATH + '/' + predictions['image_file'][image_idx])
+image = Image.open(config.imagesPath + '/' + predictions['image_file'][image_idx])
 
 image_landmark = predictions.iloc[image_idx, LANDMARK_COL_START:].values
 image_landmark = reshape_landmark(image_landmark)
